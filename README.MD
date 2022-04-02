@@ -17,5 +17,5 @@
 * В проекте можно сделать параллельный парсинг сайтов.
 
 [![build](https://github.com/SergeyPoletaev/job4j_grabber/workflows/build/badge.svg)](https://github.com/SergeyPoletaev/job4j_grabber/actions)
-[![codecov](https://codecov.io/gh/SergeyPoletaev/job4j_grabber/branch/master/graph/badge.svg?token=2538e66e-3fd1-4c67-8b)](https://codecov.io/gh/SergeyPoletaev/job4j_grabber)
+[![codecov](https://codecov.io/gh/SergeyPoletaev/job4j_grabber/branch/master/graph/badge.svg?token=D0WtgZJQmz)](https://codecov.io/gh/SergeyPoletaev/job4j_grabber)
 
