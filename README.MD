@@ -16,4 +16,6 @@
 * В проект можно добавить новые сайты без изменения кода.
 * В проекте можно сделать параллельный парсинг сайтов.
 
+[![build](https://github.com/SergeyPoletaev/job4j_grabber/workflows/build/badge.svg)](https://github.com/SergeyPoletaev/job4j_grabber/actions)
+[![codecov](https://codecov.io/gh/SergeyPoletaev/job4j_grabber/branch/master/graph/badge.svg?token=7YI1XO5JIO)](https://codecov.io/gh/SergeyPoletaev/job4j_grabber)
 
