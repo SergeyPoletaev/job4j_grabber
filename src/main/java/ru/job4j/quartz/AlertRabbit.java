@@ -3,7 +3,6 @@ package ru.job4j.quartz;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.Properties;
@@ -15,7 +14,8 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class AlertRabbit {
 
     public static void main(String[] args) {
-        try (Connection connection = getConnection()) {
+        Properties properties = getProperties();
+        try (Connection connection = getConnection(properties)) {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap data = new JobDataMap();
@@ -24,7 +24,7 @@ public class AlertRabbit {
                     .usingJobData(data)
                     .build();
             SimpleScheduleBuilder items = simpleSchedule()
-                    .withIntervalInSeconds(getInterval())
+                    .withIntervalInSeconds(Integer.parseInt(properties.getProperty("rabbit.interval")))
                     .repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()
@@ -33,43 +33,27 @@ public class AlertRabbit {
             scheduler.scheduleJob(job, trigger);
             Thread.sleep(10000);
             scheduler.shutdown();
-        } catch (SQLException | InterruptedException | SchedulerException e) {
+        } catch (SQLException | InterruptedException | SchedulerException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private static Connection getConnection() {
-        Connection connect;
+    private static Properties getProperties() {
+        Properties properties = new Properties();
         try (InputStream in = AlertRabbit.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
-            Properties properties = new Properties();
             properties.load(in);
-            Class.forName(properties.getProperty("driver-class-name"));
-            connect = DriverManager.getConnection(
-                    properties.getProperty("url"),
-                    properties.getProperty("username"),
-                    properties.getProperty("password"));
         } catch (Exception e) {
             throw new IllegalStateException();
         }
-        return connect;
+        return properties;
     }
 
-    private static int getInterval() {
-        int interval = 0;
-        String propFile = "rabbit.properties";
-        String key = "rabbit.interval";
-        try (InputStream in = AlertRabbit.class.getClassLoader().getResourceAsStream(propFile)) {
-            Properties properties = new Properties();
-            properties.load(in);
-            interval = Integer.parseInt(properties.getProperty(key));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NumberFormatException nfe) {
-            throw new IllegalArgumentException(
-                    String.format("Invalid value for key %s in file %s. The value must be a number", key, propFile)
-            );
-        }
-        return interval;
+    private static Connection getConnection(Properties properties) throws ClassNotFoundException, SQLException {
+        Class.forName(properties.getProperty("driver-class-name"));
+        return DriverManager.getConnection(
+                properties.getProperty("url"),
+                properties.getProperty("username"),
+                properties.getProperty("password"));
     }
 
     public static class Rabbit implements Job {
@@ -82,14 +66,14 @@ public class AlertRabbit {
         public void execute(JobExecutionContext jobExecutionContext) {
             System.out.println("Rabbit runs here ...");
             Connection connection = (Connection) jobExecutionContext.getJobDetail().getJobDataMap().get("connection");
-            add(connection, System.currentTimeMillis());
+            add(connection);
         }
 
-        private void add(Connection connection, long currentTime) {
+        private void add(Connection connection) {
             try (PreparedStatement statement =
                          connection.prepareStatement(
                                  "insert into rabbit (created_data) values (?)")) {
-                statement.setTimestamp(1, new Timestamp(currentTime));
+                statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
                 statement.execute();
             } catch (SQLException e) {
                 e.printStackTrace();
