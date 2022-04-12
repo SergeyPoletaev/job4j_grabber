@@ -89,7 +89,7 @@ public class AlertRabbit {
             try (PreparedStatement statement =
                          connection.prepareStatement(
                                  "insert into rabbit (created_data) values (?)")) {
-                statement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+                statement.setTimestamp(1, new Timestamp(currentTime));
                 statement.execute();
             } catch (SQLException e) {
                 e.printStackTrace();
