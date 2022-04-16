@@ -10,7 +10,7 @@ public class Post {
     private String title;
     private String link;
     private String description;
-    private final LocalDateTime created = LocalDateTime.now();
+    private LocalDateTime created;
 
     public Post() {
     }
@@ -49,6 +49,10 @@ public class Post {
 
     public LocalDateTime getCreated() {
         return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
     }
 
     @Override
