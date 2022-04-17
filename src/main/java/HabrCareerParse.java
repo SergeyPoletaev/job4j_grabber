@@ -23,16 +23,19 @@ public class HabrCareerParse {
                 Element vacancyDate = dateTime.child(0);
                 String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
                 System.out.printf("%s [дата размещения: %s] %s%n", vacancyName, vacancyDate.attr("datetime"), link);
+                try {
+                    System.out.printf("%s" + System.lineSeparator(), retrieveDescription(link));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             });
         }
     }
 
-    private String retrieveDescription(String link) throws IOException {
+    private static String retrieveDescription(String link) throws IOException {
         Connection connection = Jsoup.connect(link);
         Document document = connection.get();
-        Elements rows = document.select(".style-ugc");
-        StringBuilder sb = new StringBuilder();
-        rows.forEach(row -> sb.append(row.text()));
-        return sb.toString();
+        Element rows = document.select(".style-ugc").first();
+        return rows.text();
     }
 }
