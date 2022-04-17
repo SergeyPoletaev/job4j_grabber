@@ -30,7 +30,7 @@ public class HabrCareerParse {
     private String retrieveDescription(String link) throws IOException {
         Connection connection = Jsoup.connect(link);
         Document document = connection.get();
-        Element rows = document.select(".style-ugc").first();
-        return rows.text();
+        Element row = document.select(".style-ugc").first();
+        return row.text();
     }
 }
