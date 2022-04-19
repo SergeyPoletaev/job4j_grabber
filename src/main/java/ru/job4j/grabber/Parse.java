@@ -1,7 +1,5 @@
 package ru.job4j.grabber;
 
-import ru.job4j.grabber.utils.Post;
-
 import java.util.List;
 
 public interface Parse {

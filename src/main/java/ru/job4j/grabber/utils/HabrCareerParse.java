@@ -1,11 +1,12 @@
+package ru.job4j.grabber.utils;
+
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.grabber.Parse;
-import ru.job4j.grabber.utils.HabrCareerDataTimeParser;
-import ru.job4j.grabber.utils.Post;
+import ru.job4j.grabber.Post;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
