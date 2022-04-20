@@ -7,11 +7,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.grabber.Parse;
 import ru.job4j.grabber.Post;
+import ru.job4j.grabber.PsqlStore;
+import ru.job4j.grabber.Store;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class HabrCareerParse implements Parse {
     private static final String SOURCE_LINK = "https://career.habr.com";
@@ -25,7 +29,27 @@ public class HabrCareerParse implements Parse {
     public static void main(String[] args) {
         HabrCareerParse careerParse = new HabrCareerParse(new HabrCareerDataTimeParser());
         List<Post> rslPosts = careerParse.list(PAGE_LINK);
+        System.out.println("Список полученных вакансий c сайта:");
         rslPosts.forEach(System.out::println);
+        Store store = new PsqlStore(careerParse.getProperties());
+        rslPosts.forEach(store::save);
+        String ln = System.lineSeparator();
+        System.out.println(ln + "Получаем все вакансии из базы данных:");
+        List<Post> postsFromDb = store.getAll();
+        postsFromDb.forEach(System.out::println);
+        System.out.println(ln + "Получаем вакансию по id = 3:");
+        Post postFromDb = store.findById(3);
+        System.out.println(postFromDb);
+    }
+
+    private Properties getProperties() {
+        Properties properties = new Properties();
+        try (InputStream in = HabrCareerParse.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
+            properties.load(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return properties;
     }
 
     private String retrieveDescription(String link) throws IOException {
