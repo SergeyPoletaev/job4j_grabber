@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Properties;
 
 public class HabrCareerParse implements Parse {
-    private static final String SOURCE_LINK = "https://career.habr.com";
-    private static final String PAGE_LINK = String.format("%s/vacancies/java_developer", SOURCE_LINK);
     private final HabrCareerDataTimeParser dataTimeParser;
 
     public HabrCareerParse(HabrCareerDataTimeParser dataTimeParser) {
@@ -28,7 +26,8 @@ public class HabrCareerParse implements Parse {
 
     public static void main(String[] args) {
         HabrCareerParse careerParse = new HabrCareerParse(new HabrCareerDataTimeParser());
-        List<Post> rslPosts = careerParse.list(PAGE_LINK);
+        String link = "https://career.habr.com/vacancies/java_developer";
+        List<Post> rslPosts = careerParse.list(link);
         System.out.println("Список полученных вакансий c сайта:");
         rslPosts.forEach(System.out::println);
         Store store = new PsqlStore(careerParse.getProperties());
@@ -68,7 +67,7 @@ public class HabrCareerParse implements Parse {
                 Document document = connection.get();
                 List<Post> posts = new ArrayList<>();
                 Elements rows = document.select(".vacancy-card__inner");
-                rows.forEach(row -> posts.add(getPost(row)));
+                rows.forEach(row -> posts.add(getPost(row, link)));
                 rslPosts.addAll(posts);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -77,13 +76,14 @@ public class HabrCareerParse implements Parse {
         return rslPosts;
     }
 
-    private Post getPost(Element row) {
+    private Post getPost(Element row, String link) {
         Element titleElement = row.select(".vacancy-card__title").first();
         Element linkElement = titleElement.child(0);
         String vacancyName = titleElement.text();
         Element dateElement = row.select(".vacancy-card__date").first();
         Element vacancyDate = dateElement.child(0);
-        String vacancyLink = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
+        String sourceLink = link.substring(0, 23);
+        String vacancyLink = String.format("%s%s", sourceLink, linkElement.attr("href"));
         LocalDateTime vacancyCreated = dataTimeParser.parse(vacancyDate.attr("datetime"));
         String vacancyDescription = "";
         try {
